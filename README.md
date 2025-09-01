@@ -9,6 +9,19 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 
 ---
 
+## Features
+
+- **Multi-language support** (ru/en/de/fr/es/pt/ja)  
+- **Custom labels for macOS Spaces** with persistent JSON storage  
+- **Visual banner notifications** when switching spaces  
+- **Menubar integration** with quick space switching  
+- **Preset label system** with history  
+- **Hotkey support** for quick label editing  
+- **Multi-monitor support** with smart grouping  
+- **Auto-reload** on system wake and JSON file changes  
+
+---
+
 ## Quick install (short version)
 
 1. Install **Hammerspoon**: <https://www.hammerspoon.org/>  
