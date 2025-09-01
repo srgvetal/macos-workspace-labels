@@ -11,13 +11,16 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 
 ## Features
 
-- **Multi-language support** (ru/en/de/fr/es/pt/ja)  
-- **Custom labels for macOS Spaces** with persistent JSON storage  
-- **Visual banner notifications** when switching spaces  
-- **Menubar integration** with quick space switching  
-- **Preset label system** with history  
-- **Hotkey support** for quick label editing  
+- **Name your Spaces** — give each desktop a meaningful label instead of “Desktop 1, 2, 3…”.  
+- **Menubar integration** — see your current Space name at a glance.  
+- **One-click switching** — quickly jump between Spaces from the menubar label, faster than Mission Control.
+- **Visual banner** — get a clean popup when changing Spaces.  
+- **Hotkey support** — press ⌘⌥L to quickly assign or change a Space name.
+- **Preset label system** – quickly reuse labels with a history-based template list
+- **Persistent storage** — labels are saved in JSON and restored after reboot.  
+
 - **Multi-monitor support** with smart grouping  
+- **Multi-language support** (en/ru/de/fr/es/pt/ja)  
 - **Auto-reload** on system wake and JSON file changes  
 
 ---
@@ -27,7 +30,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 1. Install **Hammerspoon**: <https://www.hammerspoon.org/>  
 2. Copy `init.lua`, `spaces_labels.lua`, and `spaces-labels.json` into `~/.hammerspoon/`.  
 3. Reload Hammerspoon config.  
-4. Press **⌘⌥L** to set a label, or click the menubar icon.  
+4. Press **⌘⌥L** to set a label, or click the menubar icon.
 5. Done — now your Spaces have names! 🎉
 
 ---
