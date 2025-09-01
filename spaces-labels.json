@@ -1,0 +1,11 @@
+{
+  "presets": [
+    "chat",
+    "planning",
+    "chill",
+    "money",
+    "proj1",
+    "proj2"
+  ],
+  "labelsBySpaceId": {}
+}
