@@ -1,40 +1,30 @@
 -- ============================================================================
 -- PARAMETERS (configure for yourself)
 -- ============================================================================
-local LOCALE = "ru" -- Language: "ru", "en", "de", "fr", "es", "pt", "ja"
+local LOCALE = "en" -- Language: "en", "ru", "de", "fr", "es", "pt", "ja"
+
+local JSON_PATH = os.getenv("HOME") .. "/.hammerspoon/spaces-labels.json"
 
 local MENUBAR_TITLE_FORMAT = '“ %s “' -- menubar title format (%s is replaced with label)
 local HOTKEY_LABEL_EDIT = {"cmd", "alt", "L"} -- hotkey for label editing
 
-local JSON_PATH = os.getenv("HOME") .. "/.hammerspoon/spaces-labels.json"
-local BANNER_DURATION = 1.2        -- banner display duration in seconds
+local UPDATE_DELAY = 0.05            -- update delay in seconds
+
+local BANNER_DURATION = 1.2          -- banner display duration in seconds
 local SHOW_ON_MONITOR_CHANGE = false -- show banner on monitor change
-local UPDATE_DELAY = 0.05           -- update delay in seconds
-local BANNER_MIN_WIDTH = 80         -- minimum banner width in pixels
-local BANNER_PADDING_H = 40         -- horizontal padding inside banner in pixels
-local BANNER_PADDING_V = 16         -- vertical padding inside banner in pixels
-local BANNER_TEXT_SIZE = 46         -- banner font size
-local BANNER_Y_POSITION = 0.04      -- Y position (fraction of screen height)
+
+local BANNER_TEXT_SIZE = 46          -- banner font size
+local BANNER_Y_POSITION = 0.04       -- Y position (fraction of screen height)
+local BANNER_MIN_WIDTH = 80          -- minimum banner width in pixels
+local BANNER_PADDING_H = 40          -- horizontal padding inside banner in pixels
+local BANNER_PADDING_V = 16          -- vertical padding inside banner in pixels
+
 local DEBUG_MODE = false             -- print debug information
 
 -- ============================================================================
 -- TEXT CONSTANTS FOR DIFFERENT LANGUAGES
 -- ============================================================================
 local TEXTS = {
-  ru = {
-    no_spaces = "Нет доступных рабочих столов",
-    -- edit_menu = "⚙ Изменить",
-    edit_menu = "⚙ ",
-    manual_input = "Ввести вручную",
-    delete_label = "Удалить",
-    history = "История",
-    space_prefix = "Space ",
-    edit_dialog_title = "Изменить метку рабочего стола",
-    edit_dialog_text = "Введите новую метку для рабочего стола %s:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Отмена",
-    error_no_space = "Не удается определить текущий рабочий стол"
-  },
   en = {
     no_spaces = "No available workspaces",
     -- edit_menu = "⚙ Edit",
@@ -48,6 +38,20 @@ local TEXTS = {
     edit_dialog_ok = "OK",
     edit_dialog_cancel = "Cancel",
     error_no_space = "Cannot determine current workspace"
+  },
+  ru = {
+    no_spaces = "Нет доступных рабочих столов",
+    -- edit_menu = "⚙ Изменить",
+    edit_menu = "⚙ ",
+    manual_input = "Ввести вручную",
+    delete_label = "Удалить",
+    history = "История",
+    space_prefix = "Space ",
+    edit_dialog_title = "Изменить метку рабочего стола",
+    edit_dialog_text = "Введите новую метку для рабочего стола %s:",
+    edit_dialog_ok = "OK",
+    edit_dialog_cancel = "Отмена",
+    error_no_space = "Не удается определить текущий рабочий стол"
   },
   de = {
     no_spaces = "Keine verfügbaren Arbeitsbereiche",
