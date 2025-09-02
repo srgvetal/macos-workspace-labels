@@ -142,6 +142,8 @@ local lastSpaceId = nil
 local lastScreenId = nil
 local labelEditHotkey = nil
 
+local handleUpdate, scheduleUpdate
+
 -- ============================================================================
 -- CORE FUNCTIONS
 -- ============================================================================
@@ -456,7 +458,7 @@ local function createEditSubmenu()
             spaceLabels[currentSpaceId] = preset
             saveLabelsToJSON()
             handleUpdate("label_changed")
-            showBanner(preset)
+            -- showBanner(preset)
           end
         end
       })
@@ -545,7 +547,7 @@ end
 -- UPDATE SYSTEM
 -- ============================================================================
 
-local function handleUpdate(reason)
+function handleUpdate(reason)
   local spaceId = getCurrentSpaceId()
   local screenId = getCurrentScreenId()
   local label = getLabelForSpace(spaceId)
@@ -572,7 +574,7 @@ local function handleUpdate(reason)
   lastScreenId = screenId
 end
 
-local function scheduleUpdate(reason)
+function scheduleUpdate(reason)
   if updateTimer then
     updateTimer:stop()
     updateTimer = nil
