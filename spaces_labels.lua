@@ -144,6 +144,8 @@ local labelEditHotkey = nil
 
 local handleUpdate, scheduleUpdate
 
+local optionKeyPressed = false
+
 -- ============================================================================
 -- CORE FUNCTIONS
 -- ============================================================================
@@ -469,10 +471,16 @@ local function createEditSubmenu()
 end
 
 local function createMainMenu()
+  
+  local flags = hs.eventtap.checkKeyboardModifiers()
+  optionKeyPressed = flags.alt or false
+  
   local spaces = getAllSpacesWithLabels()
   local menuItems = {}
   
   local spacesByScreen = {}
+  local spaceIndex = 1
+  
   for _, space in ipairs(spaces) do
     if not spacesByScreen[space.screenId] then
       spacesByScreen[space.screenId] = {}
@@ -485,12 +493,18 @@ local function createMainMenu()
   
   if spacesByScreen[activeScreenId] then
     for _, space in ipairs(spacesByScreen[activeScreenId]) do
+      local title = space.label
+      if optionKeyPressed then
+        title = spaceIndex .. ": " .. space.label
+      end
+      
       table.insert(menuItems, {
-        title = space.label,
+        title = title,
         fn = function()
           switchToSpace(space.id)
         end
       })
+      spaceIndex = spaceIndex + 1
     end
     isFirst = false
   end
@@ -502,12 +516,18 @@ local function createMainMenu()
       end
       
       for _, space in ipairs(screenSpaces) do
+        local title = space.label
+        if optionKeyPressed then
+          title = spaceIndex .. ": " .. space.label
+        end
+        
         table.insert(menuItems, {
-          title = space.label,
+          title = title,
           fn = function()
             switchToSpace(space.id)
           end
         })
+        spaceIndex = spaceIndex + 1
       end
       
       isFirst = false
