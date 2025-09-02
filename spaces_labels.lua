@@ -75,7 +75,7 @@ local lastSpaceId = nil
 local lastScreenId = nil
 local labelEditHotkey = nil
 
-local handleUpdate, scheduleUpdate
+local handleUpdate, scheduleUpdate, missionControlNumbers
 
 local optionKeyPressed = false
 
@@ -114,6 +114,7 @@ end
 local function getAllSpacesWithLabels()
   local spaces = {}
   local allSpaceIds = hs.spaces.allSpaces()
+  local missionControlNumbers = getMissionControlNumbers()
   
   for screenId, spaceList in pairs(allSpaceIds) do
     for index, spaceId in ipairs(spaceList) do
@@ -122,7 +123,8 @@ local function getAllSpacesWithLabels()
       
       local displayLabel = label
       if not label or label == "" then
-        displayLabel = T.space_prefix .. index
+        local mcNumber = missionControlNumbers[spaceIdStr] or index
+        displayLabel = T.space_prefix .. mcNumber
       end
       
       table.insert(spaces, {
@@ -146,22 +148,25 @@ local function switchToSpace(spaceId)
 end
 
 -- ============================================================================
--- DATA PERSISTENCE
+-- JSON DATA OPERATIONS
 -- ============================================================================
 
-local function loadLabelsFromJSON()
+local JsonData = {}
+
+function JsonData.createDefaultStructure()
+  return {
+    Presets = {},
+    History = {},
+    labelsBySpaceId = {}
+  }
+end
+
+function JsonData.loadFromFile()
   local file = io.open(JSON_PATH, "r")
   if not file then
     log("JSON file not found, creating new: " .. JSON_PATH)
-    local defaultData = {
-      labels = {},
-      presets = {}
-    }
-    local newFile = io.open(JSON_PATH, "w")
-    if newFile then
-      newFile:write(hs.json.encode(defaultData, true))
-      newFile:close()
-    end
+    local defaultData = JsonData.createDefaultStructure()
+    JsonData.saveToFile(defaultData)
     return {}, {}
   end
   
@@ -174,57 +179,57 @@ local function loadLabelsFromJSON()
   end
   
   local success, data = pcall(hs.json.decode, content)
-  if not success then
+  if not success or not data then
     log("JSON reading error: " .. tostring(data))
     return {}, {}
   end
-  
-  local labels = {}
-  local presets = data.presets or {}
-  
-  -- Support different JSON formats
-  if data.labelsBySpaceId then
-    labels = data.labelsBySpaceId
-  elseif data.labels then
-    labels = data.labels
-  else
-    labels = data
-  end
+
+  local labels = data.labelsBySpaceId or data.labels or {}
+  local presets = data.presets or data.Presets or {}
   
   return labels, presets
 end
 
-local function saveLabelsToJSON()
-  local file = io.open(JSON_PATH, "r")
-  local data = {
-    labels = {},
-    presets = {}
-  }
-  
-  if file then
-    local content = file:read("*all")
-    file:close()
-    
-    if content and content ~= "" then
-      local success, existingData = pcall(hs.json.decode, content)
-      if success then
-        data = existingData
-      end
+function JsonData.saveToFile(data)
+  local function formatArray(arr)
+    if not arr or #arr == 0 then
+      return "[]"
     end
+    
+    local items = {}
+    for _, item in ipairs(arr) do
+      table.insert(items, '"' .. tostring(item) .. '"')
+    end
+    
+    return "[\n    " .. table.concat(items, ",\n    ") .. "\n  ]"
   end
   
-  -- Update labels while preserving existing presets
-  if data.labelsBySpaceId then
-    data.labelsBySpaceId = spaceLabels
-  else
-    data.labels = spaceLabels
+  local function formatObject(obj)
+    if not obj or next(obj) == nil then
+      return "{}"
+    end
+    
+    local items = {}
+    for key, value in pairs(obj) do
+      table.insert(items, '"' .. tostring(key) .. '": "' .. tostring(value) .. '"')
+    end
+    
+    table.sort(items) -- Сортируем для стабильного порядка
+    
+    return "{\n    " .. table.concat(items, ",\n    ") .. "\n  }"
   end
   
-  local newFile = io.open(JSON_PATH, "w")
-  if newFile then
-    newFile:write(hs.json.encode(data, true))
-    newFile:close()
-    log("Labels saved to JSON")
+  local orderedJson = "{\n"
+  orderedJson = orderedJson .. '  "Presets": ' .. formatArray(data.Presets or {}) .. ',\n'
+  orderedJson = orderedJson .. '  "History": ' .. formatArray(data.History or {}) .. ',\n\n\n'
+  orderedJson = orderedJson .. '  "labelsBySpaceId": ' .. formatObject(data.labelsBySpaceId or {}) .. '\n'
+  orderedJson = orderedJson .. "}"
+  
+  local file = io.open(JSON_PATH, "w")
+  if file then
+    file:write(orderedJson)
+    file:close()
+    log("Data saved to JSON")
     return true
   else
     log("Error saving JSON")
@@ -232,9 +237,77 @@ local function saveLabelsToJSON()
   end
 end
 
+function JsonData.getExistingData()
+  local file = io.open(JSON_PATH, "r")
+  local data = JsonData.createDefaultStructure()
+  
+  if file then
+    local content = file:read("*all")
+    file:close()
+    
+    if content and content ~= "" then
+      local success, existingData = pcall(hs.json.decode, content)
+      if success and existingData then
+        data.Presets = existingData.presets or existingData.Presets or {}
+        data.History = existingData.history or existingData.History or {}
+      end
+    end
+  end
+  
+  return data
+end
+
+function JsonData.getHistory()
+  local file = io.open(JSON_PATH, "r")
+  if not file then return {} end
+  
+  local content = file:read("*all")
+  file:close()
+  
+  if not content or content == "" then return {} end
+  
+  local success, data = pcall(hs.json.decode, content)
+  if success and data and (data.History or data.history) then
+    return data.History or data.history
+  end
+  
+  return {}
+end
+
+local function loadLabelsFromJSON()
+  return JsonData.loadFromFile()
+end
+
+local function saveLabelsToJSON()
+  local data = JsonData.getExistingData()
+  data.labelsBySpaceId = spaceLabels
+  return JsonData.saveToFile(data)
+end
+
 local function reloadLabels()
   spaceLabels, spacePresets = loadLabelsFromJSON()
   log("Loaded labels: " .. tostring(#spaceLabels) .. ", presets: " .. tostring(#spacePresets))
+end
+
+-- ============================================================================
+-- HISTORY OPERATIONS
+-- ============================================================================
+
+local function addLabelToHistory(label)
+  if not label or label == "" then return end
+  
+  local data = JsonData.getExistingData()
+  data.labelsBySpaceId = spaceLabels
+  
+  -- Remove duplicate if exists in History
+  for i = #data.History, 1, -1 do
+    if data.History[i] == label then
+      table.remove(data.History, i)
+    end
+  end
+  
+  table.insert(data.History, label)
+  JsonData.saveToFile(data)
 end
 
 -- ============================================================================
@@ -323,10 +396,13 @@ function showLabelEditDialog()
   end
   
   local currentLabel = spaceLabels[currentSpaceId] or ""
+
+  local missionControlNumbers = getMissionControlNumbers()
+  local mcNumber = missionControlNumbers[currentSpaceId] or "?"
   
   local button, text = hs.dialog.textPrompt(
     T.edit_dialog_title, 
-    string.format(T.edit_dialog_text, currentSpaceId),
+    string.format(T.edit_dialog_text, mcNumber),
     currentLabel,
     T.edit_dialog_ok,
     T.edit_dialog_cancel
@@ -335,6 +411,7 @@ function showLabelEditDialog()
   if button == T.edit_dialog_ok then
     if text and text ~= "" then
       spaceLabels[currentSpaceId] = text
+      addLabelToHistory(text)
       log("Set label '" .. text .. "' for Space " .. currentSpaceId)
     else
       spaceLabels[currentSpaceId] = nil
@@ -351,7 +428,59 @@ function showLabelEditDialog()
 end
 
 -- ============================================================================
--- MENU CREATION
+-- MISSION CONTROL NUMBERING SYSTEM
+-- ============================================================================
+
+function getMissionControlNumbers()
+  local allSpaceIds = hs.spaces.allSpaces()
+  local missionControlNumbers = {}
+  
+  local spacesByScreen = {}
+  for screenId, spaceList in pairs(allSpaceIds) do
+    spacesByScreen[screenId] = {}
+    for _, spaceId in ipairs(spaceList) do
+      table.insert(spacesByScreen[screenId], {
+        id = spaceId,
+        idStr = tostring(spaceId)
+      })
+    end
+  end
+  
+  local currentNumber = 1
+  
+  local screenInfos = {}
+  for screenId, _ in pairs(spacesByScreen) do
+    local screen = hs.screen.find(screenId)
+    if screen then
+      table.insert(screenInfos, {
+        uuid = screenId,
+        internalId = screen:id(),
+        isPrimary = screen == hs.screen.primaryScreen()
+      })
+    end
+  end
+  
+  table.sort(screenInfos, function(a, b)
+    if a.isPrimary and not b.isPrimary then return true end
+    if b.isPrimary and not a.isPrimary then return false end
+    return a.internalId < b.internalId
+  end)
+  
+  for _, screenInfo in ipairs(screenInfos) do
+    local screenSpaces = spacesByScreen[screenInfo.uuid]
+    if screenSpaces then
+      for _, space in ipairs(screenSpaces) do
+        missionControlNumbers[space.idStr] = currentNumber
+        currentNumber = currentNumber + 1
+      end
+    end
+  end
+  
+  return missionControlNumbers
+end
+
+-- ============================================================================
+-- MENU AND SUBMENU CREATION AND ACTIONS
 -- ============================================================================
 
 local function createEditSubmenu()
@@ -389,6 +518,7 @@ local function createEditSubmenu()
           local currentSpaceId = getCurrentSpaceId()
           if currentSpaceId then
             spaceLabels[currentSpaceId] = preset
+            addLabelToHistory(preset)
             saveLabelsToJSON()
             handleUpdate("label_changed")
           end
@@ -398,21 +528,27 @@ local function createEditSubmenu()
     hasContent = true
   end
   
+  local spaceHistory = JsonData.getHistory()
   local historyLabels = {}
   local presetSet = {}
   for _, preset in ipairs(spacePresets or {}) do
     presetSet[preset] = true
   end
   
-  local labelsList = {}
-  for spaceId, label in pairs(spaceLabels) do
+  for i = #spaceHistory, 1, -1 do
+    local label = spaceHistory[i]
     if label and label ~= "" and not presetSet[label] then
-      table.insert(labelsList, label)
+      local found = false
+      for _, existing in ipairs(historyLabels) do
+        if existing == label then
+          found = true
+          break
+        end
+      end
+      if not found then
+        table.insert(historyLabels, label)
+      end
     end
-  end
-  
-  for i = #labelsList, 1, -1 do
-    table.insert(historyLabels, labelsList[i])
   end
   
   if #historyLabels > 0 then
@@ -430,6 +566,7 @@ local function createEditSubmenu()
           local currentSpaceId = getCurrentSpaceId()
           if currentSpaceId then
             spaceLabels[currentSpaceId] = label
+            addLabelToHistory(label)
             saveLabelsToJSON()
             handleUpdate("label_changed")
           end
@@ -454,20 +591,10 @@ local function createEditSubmenu()
     table.insert(menuItems, {
       title = T.clear_history,
       fn = function()
-        local allSpaceIds = {}
-        for _, spaceList in pairs(hs.spaces.allSpaces()) do
-          for _, spaceId in ipairs(spaceList) do
-            allSpaceIds[tostring(spaceId)] = true
-          end
-        end
-        
-        for spaceId in pairs(spaceLabels) do
-          if not allSpaceIds[spaceId] then
-            spaceLabels[spaceId] = nil
-          end
-        end
-        
-        saveLabelsToJSON()
+        local data = JsonData.getExistingData()
+        data.History = {}
+        data.labelsBySpaceId = spaceLabels
+        JsonData.saveToFile(data)
         handleUpdate("history_cleared")
       end
     })
@@ -494,33 +621,7 @@ local function createMainMenu()
   local missionControlNumbers = {}
   
   if optionKeyPressed then
-    local currentNumber = 1
-    
-    local screenInfos = {}
-    for screenId, _ in pairs(spacesByScreen) do
-      local screen = hs.screen.find(screenId)
-      if screen then
-        table.insert(screenInfos, {
-          uuid = screenId,
-          internalId = screen:id(),
-          isPrimary = screen == hs.screen.primaryScreen()
-        })
-      end
-    end
-    
-    table.sort(screenInfos, function(a, b)
-      if a.isPrimary and not b.isPrimary then return true end
-      if b.isPrimary and not a.isPrimary then return false end
-      return a.internalId < b.internalId
-    end)
-    
-    for _, screenInfo in ipairs(screenInfos) do
-      local screenSpaces = spacesByScreen[screenInfo.uuid]
-      for _, space in ipairs(screenSpaces) do
-        missionControlNumbers[space.idStr] = currentNumber
-        currentNumber = currentNumber + 1
-      end
-    end
+    missionControlNumbers = getMissionControlNumbers()
   end
   
   local activeScreenId = getCurrentScreenId()
@@ -692,11 +793,31 @@ hs.window.filter.new(true):subscribe(hs.window.filter.windowFocused, function()
 end)
 
 -- Watch for JSON file changes
-hs.pathwatcher.new(JSON_PATH, function()
-  log("JSON file changed, reloading labels")
-  reloadLabels()
-  scheduleUpdate("json_reload")
-end):start()
+local jsonWatcher = nil
+
+local function startJSONWatcher()
+  if jsonWatcher then
+    jsonWatcher:stop()
+    jsonWatcher = nil
+  end
+  
+  jsonWatcher = hs.pathwatcher.new(JSON_PATH, function()
+    log("JSON file changed, reloading labels")
+    reloadLabels()
+    scheduleUpdate("json_reload")
+    
+    -- Restart watcher after delay to prevent issues
+    hs.timer.doAfter(1, function()
+      startJSONWatcher()
+    end)
+  end)
+  
+  if jsonWatcher then
+    jsonWatcher:start()
+  end
+end
+
+startJSONWatcher()
 
 log("SpaceLabels loaded. JSON: " .. JSON_PATH)
 log("Hotkey for label editing: " .. table.concat(HOTKEY_LABEL_EDIT, "+"))

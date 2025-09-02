@@ -12,19 +12,19 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 ## Key Features
 
 ### 🖥 Core Features
-- **Name your Spaces** — give each desktop a meaningful label instead of “Desktop 1, 2, 3…”.  
+- **Name your Spaces** — assign meaningful labels to desktops you choose, instead of “Desktop 1, 2, 3…”.  
 - **Menubar integration** — always see your current Space name at a glance.  
-- **One-click switching from menubar** — switch Spaces faster than Mission Control; hold **⌥ (Option)** for a numbered view.
+- **One-click switching from menubar** — press, roll down, and release the mouse on the desired name; faster than Mission Control. Hold ⌥ to show names with MC numbering.
 - **Visual banner** — a quick, noticeable label at the top showing the Space name whenever you switch.
 - **Hotkey support** — press ⌘⌥L to quickly assign or change a Space name.  
 
 ### ⚙️ Customization & Workflow
-- **Preset label system** — quickly reuse labels with a history-based template list.  
-- **Persistent storage** — labels are saved in JSON and restored after reboot.
+- **Preset label system** — flexible reuse of labels from history or your own custom presets. 
+- **Persistent storage** — labels are saved in an easy-to-read and editable JSON and restored after reboot. 
 
 ### 🚀 Advanced Features
 - **Multi-monitor support** with smart grouping.  
-- **Multi-language support** (en/ru/de/fr/es/pt/ja).  
+- **Multi-language support** (en/ru/de/fr/es/pt/ja/zh).  
 - **Auto-reload** on system wake and JSON file changes.
 
 ---
@@ -32,7 +32,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 ## Quick install (short version)
 
 1. Install **Hammerspoon**: <https://www.hammerspoon.org/>  
-2. Copy `init.lua`, `spaces_labels.lua`, `spaces_labels_lang.lua`, and `spaces-labels.json` into `~/.hammerspoon/`.  
+2. Copy `init.lua`, `spaces_labels.lua` and `spaces_labels_lang.lua` into `~/.hammerspoon/`.  
 3. Reload Hammerspoon config.  
 4. Press **⌘⌥L** to set a label, or click directly on the menubar label.
 5. Done — now your Spaces have names! 🎉
@@ -55,8 +55,7 @@ Copy these repo files to `~/.hammerspoon/`:
 ~/.hammerspoon/
   init.lua
   spaces_labels.lua
-  spaces_labels_lang.lua  
-  spaces-labels.json
+  spaces_labels_lang.lua
 ```
 
 ### 3) Reload config
@@ -70,14 +69,30 @@ Now you should see your current Space label in the menu bar.
 - To remove a label: menubar → ⚙ → *Delete*.
 
 ### 5) Use history & presets
-Use the history of entered labels, or add your own favorites directly in `spaces-labels.json`:
+Use the history of entered labels or move it into presets and manage them — remove, edit, or add your own directly in `spaces-labels.json` (created automatically on first launch, can be opened from the submenu via *Edit presets*):
+
 ```json
 {
-  "presets": ["chat", "planning", "chill", "money", "proj1", "proj2"],
+  "Presets": [
+    "chat",       // messengers, Slack, Discord
+    "proj1",      // replace with your project name
+    "proj2",      // another project or task
+    "browsing",   // research w/o projects link, web, news
+    "calendar",   // planning, scheduling, notes, calendar apps
+    "finance",    // banking, invoices, bills, google sheets
+    "chill"       // music, video, downtime
+
+    // Remember: you can assign or rename a Space on the fly — as fast as your thoughts — with ⌘⌥L.  
+    // If it proves useful, add it to your presets for permanent reuse.
+  ],
+  "History": [],
+
+
   "labelsBySpaceId": {}
 }
 ```
-They will appear in the **History** menu.
+Both Presets and History will show up in the submenu if defined.
+You’re free to keep, clear, or fully customize these sections to match your workflow.
 
 ### 6) Customize
 - Menu bar format: `MENUBAR_TITLE_FORMAT`  
