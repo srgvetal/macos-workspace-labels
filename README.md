@@ -15,7 +15,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 - **Name your Spaces** — give each desktop a meaningful label instead of “Desktop 1, 2, 3…”.  
 - **Menubar integration** — always see your current Space name at a glance.  
 - **One-click switching from menubar** — switch Spaces faster than Mission Control; hold **⌥ (Option)** for a numbered view.
-- **Visual banner** — simple popup label when swapping or opening a Space.  
+- **Visual banner** — a quick, noticeable label at the top showing the Space name whenever you switch.
 - **Hotkey support** — press ⌘⌥L to quickly assign or change a Space name.  
 
 ### ⚙️ Customization & Workflow
@@ -34,7 +34,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 1. Install **Hammerspoon**: <https://www.hammerspoon.org/>  
 2. Copy `init.lua`, `spaces_labels.lua`, and `spaces-labels.json` into `~/.hammerspoon/`.  
 3. Reload Hammerspoon config.  
-4. Press **⌘⌥L** to set a label, or click the menubar icon.
+4. Press **⌘⌥L** to set a label, or click directly on the menubar label.
 5. Done — now your Spaces have names! 🎉
 
 ---
