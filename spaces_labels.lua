@@ -1,7 +1,8 @@
 -- ============================================================================
 -- PARAMETERS (configure for yourself)
 -- ============================================================================
-local LOCALE = "en" -- Language: "en", "ru", "de", "fr", "es", "pt", "ja"
+
+local LOCALE = "auto" -- Language: "auto", "en", "ru", "de", "fr", "es", "pt", "ja", "zh"
 
 local JSON_PATH = os.getenv("HOME") .. "/.hammerspoon/spaces-labels.json"
 
@@ -22,132 +23,43 @@ local DEBOUNCE_DELAY = 0.05          -- debouncing delay to prevent excessive up
 local DEBUG_MODE = false             -- print debug information
 
 -- ============================================================================
--- TEXT CONSTANTS FOR DIFFERENT LANGUAGES
+-- LOCALIZATION
 -- ============================================================================
-local TEXTS = {
-  en = {
-    no_spaces = "No available workspaces",
-    -- edit_menu = "⚙ Edit",
-    edit_menu = "⚙ ",
-    manual_input = "Enter manually",
-    delete_label = "Delete",
-    history = "History",
-    presets = "Presets",
-    edit_presets = "Edit presets",
-    clear_history = "Clear history",
-    space_prefix = "Space ",
-    edit_dialog_title = "Edit workspace label",
-    edit_dialog_text = "Enter new label for workspace %s:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Cancel",
-    error_no_space = "Cannot determine current workspace"
-  },
-  ru = {
-    no_spaces = "Нет доступных рабочих столов",
-    -- edit_menu = "⚙ Изменить",
-    edit_menu = "⚙ ",
-    manual_input = "Ввести вручную",
-    delete_label = "Удалить",
-    history = "История",
-    presets = "Шаблоны",
-    edit_presets = "Изменить шаблоны",
-    clear_history = "Очистить историю",
-    space_prefix = "Рабочий стол ",
-    edit_dialog_title = "Изменить метку рабочего стола",
-    edit_dialog_text = "Введите новую метку для рабочего стола %s:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Отмена",
-    error_no_space = "Не удается определить текущий рабочий стол"
-  },
-  de = {
-    no_spaces = "Keine verfügbaren Arbeitsbereiche",
-    -- edit_menu = "⚙ Bearbeiten",
-    edit_menu = "⚙ ",
-    manual_input = "Manuell eingeben",
-    delete_label = "Löschen",
-    history = "Verlauf",
-    presets = "Favoriten",
-    edit_presets = "Favoriten bearbeiten",
-    clear_history = "Verlauf löschen",
-    space_prefix = "Schreibtisch ",
-    edit_dialog_title = "Arbeitsbereich-Label bearbeiten",
-    edit_dialog_text = "Neues Label für Arbeitsbereich %s eingeben:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Abbrechen",
-    error_no_space = "Aktueller Arbeitsbereich kann nicht bestimmt werden"
-  },
-  fr = {
-    no_spaces = "Aucun espace de travail disponible",
-    -- edit_menu = "⚙ Modifier",
-    edit_menu = "⚙ ",
-    manual_input = "Saisir manuellement",
-    delete_label = "Supprimer",
-    history = "Historique",
-    presets = "Favoris",
-    edit_presets = "Modifier les favoris",
-    clear_history = "Effacer l'historique",
-    space_prefix = "Bureau ",
-    edit_dialog_title = "Modifier le libellé de l'espace de travail",
-    edit_dialog_text = "Entrer un nouveau libellé pour l'espace de travail %s:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Annuler",
-    error_no_space = "Impossible de déterminer l'espace de travail actuel"
-  },
-  es = {
-    no_spaces = "No hay espacios de trabajo disponibles",
-    -- edit_menu = "⚙ Editar",
-    edit_menu = "⚙ ",
-    manual_input = "Introducir manualmente",
-    delete_label = "Eliminar",
-    history = "Historial",
-    presets = "Favoritos",
-    edit_presets = "Editar favoritos",
-    clear_history = "Limpiar historial",
-    space_prefix = "Escritorio ",
-    edit_dialog_title = "Editar etiqueta del espacio de trabajo",
-    edit_dialog_text = "Introducir nueva etiqueta para el espacio de trabajo %s:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Cancelar",
-    error_no_space = "No se puede determinar el espacio de trabajo actual"
-  },
-  pt = {
-    no_spaces = "Nenhum espaço de trabalho disponível",
-    -- edit_menu = "⚙ Editar",
-    edit_menu = "⚙ ",
-    manual_input = "Inserir manualmente",
-    delete_label = "Excluir",
-    history = "Histórico",
-    presets = "Favoritos",
-    edit_presets = "Editar favoritos",
-    clear_history = "Limpar histórico",
-    space_prefix = "Área de trabalho ",
-    edit_dialog_title = "Editar rótulo do espaço de trabalho",
-    edit_dialog_text = "Digite um novo rótulo para o espaço de trabalho %s:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "Cancelar",
-    error_no_space = "Não é possível determinar o espaço de trabalho atual"
-  },
-  ja = {
-    no_spaces = "利用可能なワークスペースがありません",
-    -- edit_menu = "⚙ 編集",
-    edit_menu = "⚙ ",
-    manual_input = "手動で入力",
-    delete_label = "削除",
-    history = "履歴",
-    presets = "お気に入り",
-    edit_presets = "お気に入りを編集",
-    clear_history = "履歴をクリア",
-    space_prefix = "デスクトップ ",
-    edit_dialog_title = "ワークスペースラベルを編集",
-    edit_dialog_text = "ワークスペース %s の新しいラベルを入力:",
-    edit_dialog_ok = "OK",
-    edit_dialog_cancel = "キャンセル",
-    error_no_space = "現在のワークスペースを特定できません"
-  }
-}
 
--- Get current language texts
-local T = TEXTS[LOCALE] or TEXTS["en"]
+local function getSystemLocale()
+  local handle = io.popen("defaults read -g AppleLocale")
+  local result = handle:read("*a")
+  handle:close()
+  
+  local locale = result:match("^(%a+)")
+  if not locale then
+    return "en"
+  end
+  
+  local localeMap = {
+    en = "en",
+    ru = "ru", 
+    de = "de",
+    fr = "fr",
+    es = "es",
+    pt = "pt",
+    ja = "ja",
+    zh = "zh"
+  }
+  
+  return localeMap[locale] or "en"
+end
+
+local function getEffectiveLocale()
+  if LOCALE == "auto" then
+    return getSystemLocale()
+  else
+    return LOCALE
+  end
+end
+
+local TEXTS = dofile(hs.configdir .. "/spaces-labels-lang.lua")
+local T = TEXTS[getEffectiveLocale()] or TEXTS["en"]
 
 -- ============================================================================
 -- CODE (don't touch unless necessary)
