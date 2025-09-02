@@ -14,18 +14,19 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 ### 🖥 Core Features
 - **Name your Spaces** — assign meaningful labels to desktops you choose, instead of “Desktop 1, 2, 3…”.  
 - **Menubar integration** — always see your current Space name at a glance.  
-- **One-click switching from menubar** — press, roll down, and release the mouse on the desired name; faster than Mission Control. Hold ⌥ to show names with MC numbering.
+- **One-click switching from menubar** — press, roll down, and release the mouse on the desired name – faster than Mission Control.
 - **Visual banner** — a quick, noticeable label at the top showing the Space name whenever you switch.
 - **Hotkey support** — press ⌘⌥L to quickly assign or change a Space name.  
 
 ### ⚙️ Customization & Workflow
 - **Preset label system** — flexible reuse of labels from history or your own custom presets. 
 - **Persistent storage** — labels are saved in an easy-to-read and editable JSON and restored after reboot. 
+- **MC numbering view** — hold ⌥ while clicking the menubar label to display Spaces with Mission Control numbering.
 
 ### 🚀 Advanced Features
-- **Multi-monitor support** with smart grouping.  
-- **Multi-language support** (en/ru/de/fr/es/pt/ja/zh).  
-- **Auto-reload** on system wake and JSON file changes.
+- **Multi-monitor support** — smart grouping across displays.
+- **Multi-language support** — en/ru/de/fr/es/pt/ja/zh.
+- **Auto-reload** — triggered on system wake and JSON changes.
 
 ---
 
@@ -34,8 +35,9 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 1. Install **Hammerspoon**: <https://www.hammerspoon.org/>  
 2. Copy `init.lua`, `spaces_labels.lua` and `spaces_labels_lang.lua` into `~/.hammerspoon/`.  
 3. Reload Hammerspoon config.  
-4. Press **⌘⌥L** to set a label, or click directly on the menubar label.
-5. Done — now your Spaces have names! 🎉
+4. Press **⌘⌥L** to set or rename a label.  
+5. Click the menubar label to switch Spaces or set a quick label.
+6. Done — now your Spaces have names! 🎉
 
 ---
 
