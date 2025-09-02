@@ -64,7 +64,7 @@ Copy these repo files to `~/.hammerspoon/`:
 
 #### 3) Reload config
 Click the Hammerspoon menubar icon → **Reload Config**.  
-Now you should see your current Space label in the menu bar.
+Now you should see your current empty Space label in the menu bar as symbols **“ “**.
 
 ---
 
@@ -73,7 +73,8 @@ Now you should see your current Space label in the menu bar.
 #### 4) Rename your Spaces
 - Hotkey: **⌘⌥L** → enter a name → label assigned.  
 - Or menubar → ⚙ → *Enter manually*.  
-- To remove a label: menubar → ⚙ → *Delete*.  
+- To remove a label: menubar → ⚙ → *Delete*.
+- Or use hotkey **⌘⌥L** → clear the name → press *Enter*
 - After some time using it, pick a name directly from menubar → ⚙ → **History** or **Presets** for quick reuse.
 
 #### 5) Use history & presets
