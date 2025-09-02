@@ -73,8 +73,8 @@ Now you should see your current empty Space label in the menu bar as symbols **�
 #### 4) Rename your Spaces
 - Hotkey: **⌘⌥L** → enter a name → label assigned.  
 - Or menubar → ⚙ → *Enter manually*.  
-- To remove a label: menubar → ⚙ → *Delete*.
-- Or use hotkey **⌘⌥L** → clear the name → press *Enter*
+- To remove a label: use hotkey **⌘⌥L** → clear the name → press *Enter*.
+- Or menubar → ⚙ → *Delete*.
 - After some time using it, pick a name directly from menubar → ⚙ → **History** or **Presets** for quick reuse.
 
 #### 5) Use history & presets
