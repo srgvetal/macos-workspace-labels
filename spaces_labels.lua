@@ -471,7 +471,6 @@ local function createEditSubmenu()
 end
 
 local function createMainMenu()
-  
   local flags = hs.eventtap.checkKeyboardModifiers()
   optionKeyPressed = flags.alt or false
   
@@ -479,13 +478,43 @@ local function createMainMenu()
   local menuItems = {}
   
   local spacesByScreen = {}
-  local spaceIndex = 1
-  
   for _, space in ipairs(spaces) do
     if not spacesByScreen[space.screenId] then
       spacesByScreen[space.screenId] = {}
     end
     table.insert(spacesByScreen[space.screenId], space)
+  end
+  
+  local missionControlNumbers = {}
+  
+  if optionKeyPressed then
+    local currentNumber = 1
+    
+    local screenInfos = {}
+    for screenId, _ in pairs(spacesByScreen) do
+      local screen = hs.screen.find(screenId)
+      if screen then
+        table.insert(screenInfos, {
+          uuid = screenId,
+          internalId = screen:id(),
+          isPrimary = screen == hs.screen.primaryScreen()
+        })
+      end
+    end
+    
+    table.sort(screenInfos, function(a, b)
+      if a.isPrimary and not b.isPrimary then return true end
+      if b.isPrimary and not a.isPrimary then return false end
+      return a.internalId < b.internalId
+    end)
+    
+    for _, screenInfo in ipairs(screenInfos) do
+      local screenSpaces = spacesByScreen[screenInfo.uuid]
+      for _, space in ipairs(screenSpaces) do
+        missionControlNumbers[space.idStr] = currentNumber
+        currentNumber = currentNumber + 1
+      end
+    end
   end
   
   local activeScreenId = getCurrentScreenId()
@@ -495,7 +524,8 @@ local function createMainMenu()
     for _, space in ipairs(spacesByScreen[activeScreenId]) do
       local title = space.label
       if optionKeyPressed then
-        title = spaceIndex .. ": " .. space.label
+        local mcNumber = missionControlNumbers[space.idStr] or "?"
+        title = mcNumber .. ": " .. space.label
       end
       
       table.insert(menuItems, {
@@ -504,7 +534,6 @@ local function createMainMenu()
           switchToSpace(space.id)
         end
       })
-      spaceIndex = spaceIndex + 1
     end
     isFirst = false
   end
@@ -518,7 +547,8 @@ local function createMainMenu()
       for _, space in ipairs(screenSpaces) do
         local title = space.label
         if optionKeyPressed then
-          title = spaceIndex .. ": " .. space.label
+          local mcNumber = missionControlNumbers[space.idStr] or "?"
+          title = mcNumber .. ": " .. space.label
         end
         
         table.insert(menuItems, {
@@ -527,7 +557,6 @@ local function createMainMenu()
             switchToSpace(space.id)
           end
         })
-        spaceIndex = spaceIndex + 1
       end
       
       isFirst = false
