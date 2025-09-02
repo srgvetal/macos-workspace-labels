@@ -56,6 +56,7 @@ Copy these repo files to `~/.hammerspoon/`:
   init.lua
   spaces_labels.lua
   spaces-labels.json
+  spaces-labels-lang.lua  
 ```
 
 ### 3) Reload config
@@ -82,7 +83,9 @@ They will appear in the **History** menu.
 - Menu bar format: `MENUBAR_TITLE_FORMAT`  
 - Hotkey: `HOTKEY_LABEL_EDIT` (default ⌘⌥L)  
 - Banner size/position: `BANNER_TEXT_SIZE`, `BANNER_Y_POSITION`, etc.  
-- Language: set `LOCALE` (`"en"`, `"ru"`, `"de"`, …).
+- Language: leave `LOCALE` to **auto** or pick from (`"en"`, `"ru"`, `"de"`, `"fr"`, `"es"`, `"pt"`, `"ja"`, `"zh"`).
+
+
 
 ---
 
