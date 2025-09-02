@@ -32,7 +32,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 ## Quick install (short version)
 
 1. Install **Hammerspoon**: <https://www.hammerspoon.org/>  
-2. Copy `init.lua`, `spaces_labels.lua`, and `spaces-labels.json` into `~/.hammerspoon/`.  
+2. Copy `init.lua`, `spaces_labels.lua`, `spaces_labels_lang.lua`, and `spaces-labels.json` into `~/.hammerspoon/`.  
 3. Reload Hammerspoon config.  
 4. Press **⌘⌥L** to set a label, or click directly on the menubar label.
 5. Done — now your Spaces have names! 🎉
@@ -55,8 +55,8 @@ Copy these repo files to `~/.hammerspoon/`:
 ~/.hammerspoon/
   init.lua
   spaces_labels.lua
+  spaces_labels_lang.lua  
   spaces-labels.json
-  spaces-labels-lang.lua  
 ```
 
 ### 3) Reload config

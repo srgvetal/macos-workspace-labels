@@ -58,7 +58,7 @@ local function getEffectiveLocale()
   end
 end
 
-local TEXTS = dofile(hs.configdir .. "/spaces-labels-lang.lua")
+local TEXTS = dofile(hs.configdir .. "/spaces_labels_lang.lua")
 local T = TEXTS[getEffectiveLocale()] or TEXTS["en"]
 
 -- ============================================================================
