@@ -25,7 +25,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 
 ### 🚀 Advanced Features
 - **Multi-monitor support** — smart grouping across displays.
-- **Multi-language support** — en/ru/de/fr/es/pt/ja/zh.
+- **Multi-language support** — en / ru / de / fr / es / pt / ja / zh.
 - **Auto-reload** — triggered on system wake and JSON changes.
 
 ---
@@ -43,7 +43,9 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 
 ## Full install (detailed version)
 
-### 1) Install **Hammerspoon** (required)
+### Setup
+
+#### 1) Install **Hammerspoon** (required)
 - Download from <https://www.hammerspoon.org/> or install via Homebrew:
   ```bash
   brew install --cask hammerspoon
@@ -51,7 +53,7 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 - Launch it once and enable it under  
   **System Settings → Privacy & Security → Accessibility**.
 
-### 2) Add config files
+#### 2) Add config files
 Copy these repo files to `~/.hammerspoon/`:
 ```
 ~/.hammerspoon/
@@ -60,32 +62,35 @@ Copy these repo files to `~/.hammerspoon/`:
   spaces_labels_lang.lua
 ```
 
-### 3) Reload config
+#### 3) Reload config
 Click the Hammerspoon menubar icon → **Reload Config**.  
 Now you should see your current Space label in the menu bar.
 
-### 4) Rename your Spaces
+---
+
+### Usage
+
+#### 4) Rename your Spaces
 - Hotkey: **⌘⌥L** → enter a name → label assigned.  
-- Or menubar → ⚙ → *Enter manually*.
-- Or pick a name directly from menubar → ⚙ → **History** for quick reuse.    
-- To remove a label: menubar → ⚙ → *Delete*.
+- Or menubar → ⚙ → *Enter manually*.  
+- To remove a label: menubar → ⚙ → *Delete*.  
+- After some time using it, pick a name directly from menubar → ⚙ → **History** or **Presets** for quick reuse.
 
-### 5) Use history & presets
-Use the history of entered labels or move it into presets and manage them — remove, edit, or add your own directly in `spaces-labels.json` (created automatically on first launch, can be opened from the submenu via *Edit presets*):
+#### 5) Use history & presets
+The system is flexible: you can reuse labels from history or define your own presets.  
+They are stored in `spaces-labels.json` (created automatically on first launch, can be opened from the submenu via *Edit presets*).
 
+**Example file:**
 ```json
 {
   "Presets": [
-    "chat",       // messengers, Slack, Discord
-    "proj1",      // replace with your project name
-    "proj2",      // another project or task
-    "browsing",   // research w/o projects link, web, news
-    "calendar",   // planning, scheduling, notes, calendar apps
-    "finance",    // banking, invoices, bills, google sheets
-    "chill"       // music, video, downtime
-
-    // Remember: you can assign or rename a Space on the fly — as fast as your thoughts — with ⌘⌥L.  
-    // If it proves useful, add it to your presets for permanent reuse.
+    "chat",
+    "proj1",
+    "proj2",
+    "browsing",
+    "calendar",
+    "finance",
+    "chill"
   ],
   "History": [],
 
@@ -93,16 +98,22 @@ Use the history of entered labels or move it into presets and manage them — re
   "labelsBySpaceId": {}
 }
 ```
-Both Presets and History will show up in the submenu if defined.
-You’re free to keep, clear, or fully customize these sections to match your workflow.
 
-### 6) Customize
+**Preset ideas:**
+- `chat` — messengers, Slack, Discord  
+- `proj1`, `proj2` — replace with project or task names  
+- `browsing` — research w/o projects link, web, news  
+- `calendar` — planning, scheduling, notes, calendar apps  
+- `finance` — banking, invoices, sheets  
+- `chill` — music, video, downtime  
+
+💡 *Tip: Remember, you can assign or rename a Space on the fly — as fast as your thoughts — with **⌘⌥L**. If the name proves useful, add it to your presets for permanent reuse.*  
+
+#### 6) Customize in `spaces_labels.lua`
 - Menu bar format: `MENUBAR_TITLE_FORMAT`  
 - Hotkey: `HOTKEY_LABEL_EDIT` (default ⌘⌥L)  
 - Banner size/position: `BANNER_TEXT_SIZE`, `BANNER_Y_POSITION`, etc.  
 - Language: leave `LOCALE` to **auto** or pick from (`"en"`, `"ru"`, `"de"`, `"fr"`, `"es"`, `"pt"`, `"ja"`, `"zh"`).
-
-
 
 ---
 
