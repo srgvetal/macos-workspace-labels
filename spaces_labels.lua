@@ -8,8 +8,6 @@ local JSON_PATH = os.getenv("HOME") .. "/.hammerspoon/spaces-labels.json"
 local MENUBAR_TITLE_FORMAT = '“ %s “' -- menubar title format (%s is replaced with label)
 local HOTKEY_LABEL_EDIT = {"cmd", "alt", "L"} -- hotkey for label editing
 
-local UPDATE_DELAY = 0.05            -- update delay in seconds
-
 local BANNER_DURATION = 1.2          -- banner display duration in seconds
 local SHOW_ON_MONITOR_CHANGE = false -- show banner on monitor change
 
@@ -18,6 +16,8 @@ local BANNER_Y_POSITION = 0.04       -- Y position (fraction of screen height)
 local BANNER_MIN_WIDTH = 80          -- minimum banner width in pixels
 local BANNER_PADDING_H = 40          -- horizontal padding inside banner in pixels
 local BANNER_PADDING_V = 16          -- vertical padding inside banner in pixels
+
+local DEBOUNCE_DELAY = 0.05          -- debouncing delay to prevent excessive updates
 
 local DEBUG_MODE = false             -- print debug information
 
@@ -46,7 +46,7 @@ local TEXTS = {
     manual_input = "Ввести вручную",
     delete_label = "Удалить",
     history = "История",
-    space_prefix = "Space ",
+    space_prefix = "Рабочий стол ",
     edit_dialog_title = "Изменить метку рабочего стола",
     edit_dialog_text = "Введите новую метку для рабочего стола %s:",
     edit_dialog_ok = "OK",
@@ -60,7 +60,7 @@ local TEXTS = {
     manual_input = "Manuell eingeben",
     delete_label = "Löschen",
     history = "Verlauf",
-    space_prefix = "Space ",
+    space_prefix = "Schreibtisch ",
     edit_dialog_title = "Arbeitsbereich-Label bearbeiten",
     edit_dialog_text = "Neues Label für Arbeitsbereich %s eingeben:",
     edit_dialog_ok = "OK",
@@ -74,7 +74,7 @@ local TEXTS = {
     manual_input = "Saisir manuellement",
     delete_label = "Supprimer",
     history = "Historique",
-    space_prefix = "Space ",
+    space_prefix = "Bureau ",
     edit_dialog_title = "Modifier le libellé de l'espace de travail",
     edit_dialog_text = "Entrer un nouveau libellé pour l'espace de travail %s:",
     edit_dialog_ok = "OK",
@@ -88,7 +88,7 @@ local TEXTS = {
     manual_input = "Introducir manualmente",
     delete_label = "Eliminar",
     history = "Historial",
-    space_prefix = "Space ",
+    space_prefix = "Escritorio ",
     edit_dialog_title = "Editar etiqueta del espacio de trabajo",
     edit_dialog_text = "Introducir nueva etiqueta para el espacio de trabajo %s:",
     edit_dialog_ok = "OK",
@@ -102,7 +102,7 @@ local TEXTS = {
     manual_input = "Inserir manualmente",
     delete_label = "Excluir",
     history = "Histórico",
-    space_prefix = "Space ",
+    space_prefix = "Área de trabalho ",
     edit_dialog_title = "Editar rótulo do espaço de trabalho",
     edit_dialog_text = "Digite um novo rótulo para o espaço de trabalho %s:",
     edit_dialog_ok = "OK",
@@ -116,7 +116,7 @@ local TEXTS = {
     manual_input = "手動で入力",
     delete_label = "削除",
     history = "履歴",
-    space_prefix = "Space ",
+    space_prefix = "デスクトップ ",
     edit_dialog_title = "ワークスペースラベルを編集",
     edit_dialog_text = "ワークスペース %s の新しいラベルを入力:",
     edit_dialog_ok = "OK",
@@ -170,7 +170,8 @@ end
 local function getLabelForSpace(spaceId)
   if not spaceId then return "—" end
   local label = spaceLabels[spaceId]
-  return label and label ~= "" and label or (T.space_prefix .. spaceId)
+  return label and label ~= "" and label or ""
+  -- return label and label ~= "" and label or (T.space_prefix .. spaceId)
 end
 
 local function getAllSpacesWithLabels()
@@ -178,13 +179,19 @@ local function getAllSpacesWithLabels()
   local allSpaceIds = hs.spaces.allSpaces()
   
   for screenId, spaceList in pairs(allSpaceIds) do
-    for _, spaceId in ipairs(spaceList) do
+    for index, spaceId in ipairs(spaceList) do
       local spaceIdStr = tostring(spaceId)
       local label = getLabelForSpace(spaceIdStr)
+      
+      local displayLabel = label
+      if not label or label == "" then
+        displayLabel = T.space_prefix .. index
+      end
+      
       table.insert(spaces, {
         id = spaceId,
         idStr = spaceIdStr,
-        label = label,
+        label = displayLabel,
         screenId = screenId
       })
     end
@@ -525,7 +532,7 @@ local function updateMenubar(label)
     menubar = hs.menubar.new()
   end
   if menubar then
-    local title = label and label ~= "" and string.format(MENUBAR_TITLE_FORMAT, label) or "—"
+    local title = string.format(MENUBAR_TITLE_FORMAT, label)
     menubar:setTitle(title)
     
     menubar:setMenu(function()
@@ -571,7 +578,7 @@ local function scheduleUpdate(reason)
     updateTimer = nil
   end
   
-  updateTimer = hs.timer.doAfter(UPDATE_DELAY, function()
+  updateTimer = hs.timer.doAfter(DEBOUNCE_DELAY, function()
     handleUpdate(reason)
   end)
 end
