@@ -88,9 +88,7 @@ They will appear in the **History** menu.
 
 ## Contributing
 PRs are welcome! Especially for translations and macOS version compatibility.  
+
 If this script helps you, star the repo and spread the word:  
-**Apple should let us name Spaces natively.**
+Naming Spaces would massively improve multi-tasking workflows. **Apple should let us name Spaces natively.** Let’s make it happen.
 
----
-
-P.S. If you’re with Apple or know someone there: naming Spaces would massively improve multi-project workflows. Let’s make it happen.
