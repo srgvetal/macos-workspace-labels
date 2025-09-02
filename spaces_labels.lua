@@ -32,6 +32,9 @@ local TEXTS = {
     manual_input = "Enter manually",
     delete_label = "Delete",
     history = "History",
+    presets = "Presets",
+    edit_presets = "Edit presets",
+    clear_history = "Clear history",
     space_prefix = "Space ",
     edit_dialog_title = "Edit workspace label",
     edit_dialog_text = "Enter new label for workspace %s:",
@@ -46,6 +49,9 @@ local TEXTS = {
     manual_input = "Ввести вручную",
     delete_label = "Удалить",
     history = "История",
+    presets = "Шаблоны",
+    edit_presets = "Изменить шаблоны",
+    clear_history = "Очистить историю",
     space_prefix = "Рабочий стол ",
     edit_dialog_title = "Изменить метку рабочего стола",
     edit_dialog_text = "Введите новую метку для рабочего стола %s:",
@@ -60,6 +66,9 @@ local TEXTS = {
     manual_input = "Manuell eingeben",
     delete_label = "Löschen",
     history = "Verlauf",
+    presets = "Favoriten",
+    edit_presets = "Favoriten bearbeiten",
+    clear_history = "Verlauf löschen",
     space_prefix = "Schreibtisch ",
     edit_dialog_title = "Arbeitsbereich-Label bearbeiten",
     edit_dialog_text = "Neues Label für Arbeitsbereich %s eingeben:",
@@ -74,6 +83,9 @@ local TEXTS = {
     manual_input = "Saisir manuellement",
     delete_label = "Supprimer",
     history = "Historique",
+    presets = "Favoris",
+    edit_presets = "Modifier les favoris",
+    clear_history = "Effacer l'historique",
     space_prefix = "Bureau ",
     edit_dialog_title = "Modifier le libellé de l'espace de travail",
     edit_dialog_text = "Entrer un nouveau libellé pour l'espace de travail %s:",
@@ -88,6 +100,9 @@ local TEXTS = {
     manual_input = "Introducir manualmente",
     delete_label = "Eliminar",
     history = "Historial",
+    presets = "Favoritos",
+    edit_presets = "Editar favoritos",
+    clear_history = "Limpiar historial",
     space_prefix = "Escritorio ",
     edit_dialog_title = "Editar etiqueta del espacio de trabajo",
     edit_dialog_text = "Introducir nueva etiqueta para el espacio de trabajo %s:",
@@ -102,6 +117,9 @@ local TEXTS = {
     manual_input = "Inserir manualmente",
     delete_label = "Excluir",
     history = "Histórico",
+    presets = "Favoritos",
+    edit_presets = "Editar favoritos",
+    clear_history = "Limpar histórico",
     space_prefix = "Área de trabalho ",
     edit_dialog_title = "Editar rótulo do espaço de trabalho",
     edit_dialog_text = "Digite um novo rótulo para o espaço de trabalho %s:",
@@ -116,6 +134,9 @@ local TEXTS = {
     manual_input = "手動で入力",
     delete_label = "削除",
     history = "履歴",
+    presets = "お気に入り",
+    edit_presets = "お気に入りを編集",
+    clear_history = "履歴をクリア",
     space_prefix = "デスクトップ ",
     edit_dialog_title = "ワークスペースラベルを編集",
     edit_dialog_text = "ワークスペース %s の新しいラベルを入力:",
@@ -443,13 +464,11 @@ local function createEditSubmenu()
     end
   })
   
+  local hasContent = false
+  
   if spacePresets and #spacePresets > 0 then
     table.insert(menuItems, {title = "-"})
-    
-    table.insert(menuItems, {
-      title = T.history,
-      disabled = true
-    })
+    table.insert(menuItems, {title = T.presets, disabled = true})
     
     for _, preset in ipairs(spacePresets) do
       table.insert(menuItems, {
@@ -460,11 +479,86 @@ local function createEditSubmenu()
             spaceLabels[currentSpaceId] = preset
             saveLabelsToJSON()
             handleUpdate("label_changed")
-            -- showBanner(preset)
           end
         end
       })
     end
+    hasContent = true
+  end
+  
+  local historyLabels = {}
+  local presetSet = {}
+  for _, preset in ipairs(spacePresets or {}) do
+    presetSet[preset] = true
+  end
+  
+  local labelsList = {}
+  for spaceId, label in pairs(spaceLabels) do
+    if label and label ~= "" and not presetSet[label] then
+      table.insert(labelsList, label)
+    end
+  end
+  
+  for i = #labelsList, 1, -1 do
+    table.insert(historyLabels, labelsList[i])
+  end
+  
+  if #historyLabels > 0 then
+    if hasContent then
+      table.insert(menuItems, {title = "-"})
+    else
+      table.insert(menuItems, {title = "-"})
+    end
+    table.insert(menuItems, {title = T.history, disabled = true})
+    
+    for _, label in ipairs(historyLabels) do
+      table.insert(menuItems, {
+        title = "  " .. label,
+        fn = function()
+          local currentSpaceId = getCurrentSpaceId()
+          if currentSpaceId then
+            spaceLabels[currentSpaceId] = label
+            saveLabelsToJSON()
+            handleUpdate("label_changed")
+          end
+        end
+      })
+    end
+    hasContent = true
+  end
+  
+  if hasContent then
+    table.insert(menuItems, {title = "-"})
+  end
+  
+  table.insert(menuItems, {
+    title = T.edit_presets,
+    fn = function()
+      os.execute("open -a TextEdit '" .. JSON_PATH .. "'")
+    end
+  })
+  
+  if #historyLabels > 0 then
+    table.insert(menuItems, {
+      title = T.clear_history,
+      fn = function()
+        local allSpaceIds = {}
+        for _, spaceList in pairs(hs.spaces.allSpaces()) do
+          for _, spaceId in ipairs(spaceList) do
+            allSpaceIds[tostring(spaceId)] = true
+          end
+        end
+        
+        for spaceId in pairs(spaceLabels) do
+          if not allSpaceIds[spaceId] then
+            spaceLabels[spaceId] = nil
+          end
+        end
+        
+        saveLabelsToJSON()
+        handleUpdate("history_cleared")
+      end
+    })
   end
   
   return menuItems
