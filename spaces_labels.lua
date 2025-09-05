@@ -685,7 +685,29 @@ local function createMainMenu()
   return menuItems
 end
 
-local function updateMenubar(label)
+local function updateMenubarTitle(label)
+  if not menubar then
+    menubar = hs.menubar.new()
+  end
+  if menubar then
+    local title = string.format(MENUBAR_TITLE_FORMAT, label)
+    menubar:setTitle(title)
+  end
+end
+
+local function updateMenubarMenu()
+  if menubar then
+    menubar:setMenu(function()
+      return createMainMenu()
+    end)
+  end
+end
+
+-- ============================================================================
+-- UPDATE SYSTEM
+-- ============================================================================
+
+local function initializeMenubar(label)
   if not menubar then
     menubar = hs.menubar.new()
   end
@@ -699,10 +721,6 @@ local function updateMenubar(label)
   end
 end
 
--- ============================================================================
--- UPDATE SYSTEM
--- ============================================================================
-
 function handleUpdate(reason)
   local spaceId = getCurrentSpaceId()
   local screenId = getCurrentScreenId()
@@ -710,7 +728,25 @@ function handleUpdate(reason)
   
   log("Update: " .. reason .. " -> Space:" .. tostring(spaceId) .. " Label:" .. label)
   
-  updateMenubar(label)
+  -- Обновляем меню только при определенных событиях
+  if reason == "init" or 
+     reason == "label_edited" or 
+     reason == "label_changed" or 
+     reason == "label_removed" or 
+     reason == "json_reload" or
+     reason == "space_created" or
+     reason == "space_destroyed" then
+    
+    if reason == "init" then
+      initializeMenubar(label)
+    else
+      updateMenubarTitle(label)
+      updateMenubarMenu()
+    end
+  else
+    -- Для остальных событий обновляем только заголовок
+    updateMenubarTitle(label)
+  end
   
   local shouldShowBanner = false
 
@@ -767,8 +803,14 @@ labelEditHotkey = hs.hotkey.bind(mods, key, function()
 end)
 
 -- Watch for space changes
-hs.spaces.watcher.new(function()
-  scheduleUpdate("space_change")
+hs.spaces.watcher.new(function(eventType)
+  if eventType == hs.spaces.watcher.spaceCreated then
+    scheduleUpdate("space_created")
+  elseif eventType == hs.spaces.watcher.spaceDestroyed then
+    scheduleUpdate("space_destroyed")
+  else
+    scheduleUpdate("space_change")
+  end
 end):start()
 
 -- Watch for screen changes
