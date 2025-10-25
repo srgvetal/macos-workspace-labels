@@ -40,7 +40,8 @@ If you find this useful, please star the repo, share it, and let’s nudge Apple
 3. Reload Hammerspoon config.  
 4. Press **⌘⌥L** to set or rename a label.  
 5. Click the menubar label to switch Spaces or set a quick label.
-6. Press **F3** / **Ctrl + ↑** to show Space labels directly inside Mission Control (**alpha** feature).
+6. Press **F3** / **Ctrl + ↑** to show Space labels directly inside Mission Control (**alpha** feature).  
+   See more details in **Full install → section 6**.
 7. Done — now your Spaces have names! 🎉
 
 ---
@@ -115,22 +116,22 @@ They are stored in `spaces-labels.json` (created automatically on first launch, 
 
 💡 *Tip: Remember, you can assign or rename a Space on the fly — as fast as your thoughts — with **⌘⌥L**. If the name proves useful, add it to your presets for permanent reuse.*  
 
-#### 6) 🧪 Mission Control overlay (alpha)
-- Press **F3** / **Ctrl + ↑** to show Space labels directly inside Mission Control.  
-- **Esc** or mouse click hides the labels.  
-- Coordinates are approximate and may differ on some displays, and behavior may be inconsistent in the *expanded* Mission Control view — adjust numeric values at the top of the Lua file if needed.
-- **Customization:** adjust numeric values at the top of `spaces_labels_misson_control_show_alpha.lua` — mainly `MC_COLLAPSED_SPACE_WIDTH`, `MC_COLLAPSED_LEFT_OFFSET`, `MC_EXPANDED_SPACE_WIDTH`, and `MC_EXPANDED_LEFT_OFFSET` to align labels precisely for your screen and resolution.
-- To **disable**: comment out or delete the `require("spaces_labels_misson_control_show")` line in `~/.hammerspoon/init.lua`
-
-#### 7) Customize in `spaces_labels.lua`
+#### 6) Customize in `spaces_labels.lua`
 - Menu bar format: `MENUBAR_TITLE_FORMAT`  
 - Hotkey: `HOTKEY_LABEL_EDIT` (default ⌘⌥L)  
 - Banner size/position: `BANNER_TEXT_SIZE`, `BANNER_Y_POSITION`, etc.  
 - Language: leave `LOCALE` to **auto** or pick from (`"en"`, `"ru"`, `"de"`, `"fr"`, `"es"`, `"pt"`, `"ja"`, `"zh"`).
 
+#### 7) 🧪 Mission Control overlay labels (alpha)
+- Press **F3** / **Ctrl + ↑** to show Space labels directly inside Mission Control. **Esc** or mouse click hides the labels.  
+- Coordinates are approximate and may differ on some displays, and behavior may be inconsistent in the *expanded* Mission Control view — adjust numeric values at the top of the Lua file if needed.  
+- **Manual calibration required:** it looks as each user needs to fine-tune numeric parameters once for their own language, display and resolution to align labels properly.  
+- **Customization:** adjust numeric values at the top of `spaces_labels_misson_control_show_alpha.lua` — mainly `MC_COLLAPSED_SPACE_WIDTH`, `MC_COLLAPSED_LEFT_OFFSET`, `MC_EXPANDED_SPACE_WIDTH`, and `MC_EXPANDED_LEFT_OFFSET` to align labels precisely for your language, screen and resolution.  
+- To **disable**: comment out or delete the `require("spaces_labels_misson_control_show")` line in `~/.hammerspoon/init.lua`.
+
 ---
 
-#### ⚠️ Alpha Feature limitations & call for contributors
+#### ⚠️ Alpha Feature MC labels limitations & call for contributors
 
 - **Approximate coordinates.** Labels are positioned heuristically; alignment may vary across resolutions, scaling modes, language locales, and number of Spaces.
 - **Expanded MC behavior.** In the *expanded* Mission Control view, label placement can be **inconsistent** due to animation/layout differences.
